@@ -26,14 +26,13 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 
-public class ETGetServiceImpl implements ETGetService {
-	
+public class ETGetServiceImpl implements ETGetService 
+{
 	private static Logger logger = Logger.getLogger(ETGetServiceImpl.class);
 	
 	public <T extends ETObject> ETServiceResponse<T> get(ETClient client, Class<T> type) throws ETSdkException {
 		return this.get(client, type, null);
 	}
-
 	
 	public <T extends ETObject> ETServiceResponse<T> get(ETClient client, Class<T> type, ETFilter filter) throws ETSdkException {
 		logger.trace("get ");
@@ -46,12 +45,11 @@ public class ETGetServiceImpl implements ETGetService {
         }
 		
 		String id = null;
-		
 		if( filter != null )
 		{
-			if( filter instanceof ETSimpleFilter)
+			if( filter instanceof ETSimpleFilter )
 			{
-				if( "ID".equals(((ETSimpleFilter)filter).getProperty()))
+				if( "id".equals(((ETSimpleFilter)filter).getProperty()) )
 				{
 					id = ((ETSimpleFilter)filter).getValues().get(0);
 				}
@@ -61,11 +59,10 @@ public class ETGetServiceImpl implements ETGetService {
 		String path = buildPath(typeAnnotation.restPath(), client.getAccessToken(), id);
 		String json = connection.get(path);
         
-		return createResponseETObject(type, json, true);
+		return createResponseETObject(type, json);
 	}
 
-
-	protected <T extends ETObject> ETServiceResponse<T> createResponseETObject(Class<T> type, String json, boolean get)  throws ETSdkException {
+	protected <T extends ETObject> ETServiceResponse<T> createResponseETObject(Class<T> type, String json)  throws ETSdkException {
 		
 		logger.debug("returned json" + json);
 		JsonArray items;
@@ -95,24 +92,19 @@ public class ETGetServiceImpl implements ETGetService {
 			
 			items = null;
 
-			if(get)
+			if( jsonElement.isJsonArray() )
+				items = (JsonArray)jsonElement;
+			else if( jsonElement.isJsonObject() )
 			{
-				if( jsonElement.isJsonArray() )
-					items = (JsonArray)jsonElement;
-				else if( jsonElement.isJsonObject() )
-				{
-					String collectionKey = typeAnnotation.collectionKey();
-				    items = ((JsonObject)jsonElement).get(collectionKey).getAsJsonArray();
-				}
-			}
-			else
-			{
-				if( jsonElement.isJsonArray() )
-					items = (JsonArray)jsonElement;
-				else if( jsonElement.isJsonObject() )
+				String collectionKey = typeAnnotation.collectionKey();
+				if(((JsonObject)jsonElement).get(collectionKey) == null )
 				{
 					items = new JsonArray();
 					items.add(jsonElement);
+				}
+				else
+				{
+					items = ((JsonObject)jsonElement).get(collectionKey).getAsJsonArray();
 				}
 			}
 			
@@ -166,8 +158,8 @@ public class ETGetServiceImpl implements ETGetService {
 		return response;
 	}
 	
-	protected String buildPath(String restPath, String accessToken, String id) {
-		
+	protected String buildPath(String restPath, String accessToken, String id) 
+	{
 		StringBuilder path = new StringBuilder(restPath);
 		
 		if( id != null && !"".equals(id) ) {

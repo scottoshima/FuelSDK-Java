@@ -5,7 +5,7 @@ import com.exacttarget.fuelsdk.model.ETCampaignAsset;
 
 public interface ETCampaignAssetService extends ETCrudService {
 
-	ETServiceResponse<ETCampaignAsset> get(ETClient client) throws ETSdkException ;
+	ETServiceResponse<ETCampaignAsset> get(ETClient client, String campaignId, String assetId) throws ETSdkException ;
 	
 	ETServiceResponse<ETCampaignAsset> get(ETClient client, ETFilter filter) throws ETSdkException ;
 	
